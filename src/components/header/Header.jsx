@@ -1,37 +1,73 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import logo from "../../assets/images/logo.png";
 import logoUser from "../../assets/images/logoUser.png";
 import logoBasket from "../../assets/images/logoBasket.svg";
 import logosearchIcons from "../../assets/images/logosearchIcons.png";
+import { useDispatch, useSelector } from "react-redux";
+import { openModal } from "../../services/cartItemSlice";
+import { cardData } from "../card/Card"; // Assuming this is where your card data is stored
+import Card from "../card/Card"; // Component to display the cards
 
 const Header = () => {
-  return (
-    <HeaderStyled>
-      <ContainerLogoNextPizzaDivStyled>
-        <div>
-          <ImgStyledLogo src={logo} alt="logo" />
-        </div>
-        <div>
-          <H1StyledText>NEXT PIZZA</H1StyledText>
-          <PStyledText>вкусней уже некуда</PStyledText>
-        </div>
-      </ContainerLogoNextPizzaDivStyled>
+  const [searchQuery, setSearchQuery] = useState("");
+  const cart = useSelector((state) => state.cart.items);
+  const dispatch = useDispatch();
 
-      <ContainerStyledInput>
-        <SearchLogoIconsStyled src={logosearchIcons} alt="search" />
-        <InputStyled type="search" placeholder="Поиск пиццы..." />
-      </ContainerStyledInput>
-      <ButtonContainerStyled>
-        <ButtonStyledLogin>
-          <img src={logoUser} alt="logo user" />
-          Войти
-        </ButtonStyledLogin>
-        <ButtonStyledBasket>
-          <img src={logoBasket} alt="logo basket" />
-        </ButtonStyledBasket>
-      </ButtonContainerStyled>
-    </HeaderStyled>
+  // Handle search input change
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter card data based on search query
+  const filteredCards = cardData.filter((card) =>
+    card.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Handle modal open
+  const handleOpenModal = () => {
+    dispatch(openModal());
+  };
+
+  return (
+    <>
+      <HeaderStyled>
+        <ContainerLogoNextPizzaDivStyled>
+          <div>
+            <ImgStyledLogo src={logo} alt="logo" />
+          </div>
+          <div>
+            <H1StyledText>NEXT PIZZA</H1StyledText>
+            <PStyledText>вкусней уже некуда</PStyledText>
+          </div>
+        </ContainerLogoNextPizzaDivStyled>
+
+        <ContainerStyledInput>
+          <SearchLogoIconsStyled src={logosearchIcons} alt="search" />
+          <InputStyled
+            type="search"
+            placeholder="Поиск пиццы..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+        </ContainerStyledInput>
+
+        <ButtonContainerStyled>
+          <ButtonStyledLogin>
+            <img src={logoUser} alt="logo user" />
+            Войти
+          </ButtonStyledLogin>
+          <ButtonStyledBasket onClick={handleOpenModal}>
+            <img src={logoBasket} alt="logo basket" />
+            {cart.length > 0 && (
+              <BasketQuantityStyled>{cart.length}</BasketQuantityStyled>
+            )}
+          </ButtonStyledBasket>
+        </ButtonContainerStyled>
+      </HeaderStyled>
+
+      <Card filteredCards={filteredCards} />
+    </>
   );
 };
 
@@ -93,9 +129,9 @@ const InputStyled = styled.input`
 const SearchLogoIconsStyled = styled.img`
   position: absolute;
   top: 50%;
-  left: 10px; /* Adjust the left value as needed */
+  left: 10px;
   transform: translateY(-50%);
-  width: 16px; /* Adjust size as needed */
+  width: 16px;
   height: 16px;
   pointer-events: none;
 `;
@@ -120,12 +156,35 @@ const ButtonStyledLogin = styled.button`
   text-align: center;
   color: rgba(254, 95, 0, 1);
   cursor: pointer;
+  &:hover {
+    background: rgba(55, 55, 55, 1);
+  }
 `;
 const ButtonStyledBasket = styled.button`
+  position: relative;
   width: 50px;
   height: 50px;
   border-radius: 15px;
   background: rgba(255, 255, 255, 1);
   border: 1px solid rgba(254, 95, 0, 1);
   cursor: pointer;
+  &:hover {
+    background: rgba(55, 55, 55, 1);
+  }
+`;
+const BasketQuantityStyled = styled.span`
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(254, 95, 0, 1);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Nunito;
+  font-size: 14px;
+  font-weight: 600;
 `;
